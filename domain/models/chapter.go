@@ -1,12 +1,13 @@
 package models
 
 type Chapter struct {
-	Id          ChapterId
-	MainExecute Code
-	Init        Code
-	Expected    string
-	Answer      Code
-	Level       Level
+	Id           ChapterId
+	Main         Code
+	Example      Code
+	Expected     string
+	BestPractice Code
+	Level        Level
+	Exercise     string
 }
 
 type (

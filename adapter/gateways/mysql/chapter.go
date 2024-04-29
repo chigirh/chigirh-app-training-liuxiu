@@ -11,12 +11,13 @@ import (
 type ChapterGateway struct{}
 
 type Chapter struct {
-	ChapterId       string `gorm:"primaryKey;column:chapter_id"`
-	MainExecuteCode string `gorm:"column:main_execute_code"`
-	InitCode        string `gorm:"column:init_code"`
-	Expected        string `gorm:"column:expected"`
-	AnswerCode      string `gorm:"column:answer_code"`
-	Level           int    `gorm:"column:level"`
+	ChapterId        string `gorm:"primaryKey;column:chapter_id"`
+	MainCode         string `gorm:"column:main_code"`
+	ExampleCode      string `gorm:"column:example_code"`
+	Expected         string `gorm:"column:expected"`
+	BestPracticeCode string `gorm:"column:best_practice_code"`
+	Level            int    `gorm:"column:level"`
+	Exercise         string `gorm:"column:exercise"`
 }
 
 func (it *ChapterGateway) Create(ctx context.Context, chapter models.Chapter) error {
@@ -29,12 +30,13 @@ func (it *ChapterGateway) Create(ctx context.Context, chapter models.Chapter) er
 
 	// users
 	if err := tx.Create(&Chapter{
-		ChapterId:       string(chapter.Id),
-		MainExecuteCode: string(chapter.MainExecute),
-		InitCode:        string(chapter.Init),
-		Expected:        chapter.Expected,
-		AnswerCode:      string(chapter.Answer),
-		Level:           int(chapter.Level),
+		ChapterId:        string(chapter.Id),
+		MainCode:         string(chapter.Main),
+		ExampleCode:      string(chapter.Example),
+		Expected:         chapter.Expected,
+		BestPracticeCode: string(chapter.BestPractice),
+		Level:            int(chapter.Level),
+		Exercise:         chapter.Exercise,
 	}).Error; err != nil {
 		tx.Rollback()
 		return err
@@ -63,12 +65,13 @@ func (it *ChapterGateway) FetchBy(ctx context.Context, id models.ChapterId) (*mo
 	e := ret[0]
 
 	model := models.Chapter{
-		Id:          models.ChapterId(e.ChapterId),
-		MainExecute: models.Code(e.MainExecuteCode),
-		Init:        models.Code(e.InitCode),
-		Expected:    e.Expected,
-		Answer:      models.Code(e.AnswerCode),
-		Level:       models.Level(e.Level),
+		Id:           models.ChapterId(e.ChapterId),
+		Main:         models.Code(e.MainCode),
+		Example:      models.Code(e.ExampleCode),
+		Expected:     e.Expected,
+		BestPractice: models.Code(e.BestPracticeCode),
+		Level:        models.Level(e.Level),
+		Exercise:     e.Exercise,
 	}
 
 	db.Close()
