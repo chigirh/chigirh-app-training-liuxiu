@@ -11,11 +11,12 @@ CREATE TABLE IF NOT EXISTS `admin_users`(
 
 CREATE TABLE IF NOT EXISTS `chapters`(
     `chapter_id` VARCHAR(64) NOT NULL comment 'chapter id',
-    `main_execute_code` TEXT NOT NULL comment 'Main class and running code',
-    `init_code` TEXT NOT NULL comment 'Init code',
+    `main_code` TEXT NOT NULL comment 'Main class and running code',
+    `example_code` TEXT NOT NULL comment 'example code',
     `expected` TEXT NOT NULL comment 'expected',
-    `answer_code` TEXT comment 'answer best practice',
-    `level` INTEGER NOT NULL comment 'answer best practice',
+    `best_practice_code` TEXT comment 'answer best practice',
+    `level` INTEGER NOT NULL comment 'level',
+    `exercise` TEXT comment 'exercise is markdown text',
     PRIMARY KEY(`chapter_id`)
 );
 

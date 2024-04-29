@@ -44,12 +44,13 @@ func (it *ChapterController) Get(ctx context.Context) func(c echo.Context) error
 
 		res := new(GetResponse)
 		res.Chapter = ChapterData{
-			ChapterId:       string(ch.Id),
-			MainExecuteCode: string(ch.MainExecute),
-			InitCode:        string(ch.Init),
-			Expected:        ch.Expected,
-			AnswerCode:      string(ch.Answer),
-			Level:           int(ch.Level),
+			ChapterId:        string(ch.Id),
+			MainCode:         string(ch.Main),
+			ExampleCode:      string(ch.Example),
+			Expected:         ch.Expected,
+			BestPracticeCode: string(ch.BestPractice),
+			Level:            int(ch.Level),
+			Exercise:         ch.Exercise,
 		}
 
 		return c.JSON(http.StatusOK, res)
@@ -75,12 +76,13 @@ func (it *ChapterController) Post(ctx context.Context) func(c echo.Context) erro
 		}
 
 		ch := models.Chapter{
-			Id:          models.ChapterId(req.Chapter.ChapterId),
-			MainExecute: models.Code(req.Chapter.MainExecuteCode),
-			Init:        models.Code(req.Chapter.InitCode),
-			Expected:    req.Chapter.Expected,
-			Answer:      models.Code(req.Chapter.AnswerCode),
-			Level:       models.Level(req.Chapter.Level),
+			Id:           models.ChapterId(req.Chapter.ChapterId),
+			Main:         models.Code(req.Chapter.MainCode),
+			Example:      models.Code(req.Chapter.ExampleCode),
+			Expected:     req.Chapter.Expected,
+			BestPractice: models.Code(req.Chapter.BestPracticeCode),
+			Level:        models.Level(req.Chapter.Level),
+			Exercise:     req.Chapter.Exercise,
 		}
 
 		it.inputPort.AddChapter(ctx, ch)
@@ -100,12 +102,13 @@ type (
 	}
 
 	ChapterData struct {
-		ChapterId       string `json:"chapter_id" validate:"required"`
-		MainExecuteCode string `json:"main_execute_code" validate:"required"`
-		InitCode        string `json:"init_code" validate:"required"`
-		Expected        string `json:"expected" validate:"required"`
-		AnswerCode      string `json:"answer_code"`
-		Level           int    `json:"level" validate:"required"`
+		ChapterId        string `json:"chapter_id" validate:"required"`
+		MainCode         string `json:"main_code" validate:"required"`
+		ExampleCode      string `json:"example_code" validate:"required"`
+		Expected         string `json:"expected" validate:"required"`
+		BestPracticeCode string `json:"best_practice_code"`
+		Level            int    `json:"level" validate:"required"`
+		Exercise         string `json:"exercise"`
 	}
 )
 

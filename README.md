@@ -32,14 +32,15 @@ curl -X GET -H "Content-Type: application/json" -H "x-master-key: 5d71bca7-17f6-
 | column              | type   | validation | note | 
 | :------------------ | ------ | ---------- | ---- | 
 | chapter             | string | not null   |      | 
-| 　chapter_id        | string | not null   |      | 
-| 　main_execute_code | string | not null   |      | 
-| 　init_code         | string | not null   |      | 
-| 　expected          | string | not null   |      | 
-| 　answer_code       | string |            |      | 
-| 　level             | int    | not null   |      | 
+| - chapter_id        | string | not null   |      | 
+| - main_code         | string | not null   |      | 
+| - example_code      | string | not null   |      | 
+| - expected          | string | not null   |      | 
+| - best_practice_code| string |            |      | 
+| - level             | int    | not null   |      | 
+| - exercise          | string |            |      | 
 
 ##### curl
 `
-curl -X POST -H "Content-Type: application/json" -H "x-master-key: 5d71bca7-17f6-4646-82df-7dc9397e9422" -d '{"chapter":{"chapter_id":"CHAPTER0001", "main_execute_code":"sample01", "init_code":"sample02", "expected":"sample03", "answer_code":"sample04", "level":1}}' http://localhost:9000/chapter
+curl -X POST -H "Content-Type: application/json" -H "x-master-key: 5d71bca7-17f6-4646-82df-7dc9397e9422" -d '{"chapter":{"chapter_id":"CHAPTER0001", "main_code":"sample01", "example_code":"sample02", "expected":"sample03", "best_practice_code":"sample04", "level":1, "exercise":"sample05"}}' http://localhost:9000/chapter
 `
