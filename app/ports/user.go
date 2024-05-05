@@ -5,20 +5,19 @@ import (
 	"context"
 )
 
-// receiving user data
+// receiving study user
 type IUserInputPort interface {
-	AddUser(ctx context.Context, user models.User) error
-	GetUser(ctx context.Context, userId string) (*models.User, error)
+	GetUser(ctx context.Context, userId models.UserId) (*models.User, error)
 }
 
-// CRUD user data to something
+// repository
+// study user
 type IUserRepository interface {
-	AddUser(ctx context.Context, user models.User) error
-	FetchByUserId(ctx context.Context, userId string) (*models.User, error)
+	FetchByUserId(ctx context.Context, userId models.UserId) (*models.User, error)
+	FetchBySessionKey(ctx context.Context, sessionKey models.SessionKey) (*models.User, error)
 }
 
 // Admin user
-// Admin user data to
 type IAdminUserRepository interface {
 	FetchBy(ctx context.Context, id models.UserId, pw models.Password) (*models.AdminUser, error)
 }

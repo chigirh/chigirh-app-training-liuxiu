@@ -5,7 +5,7 @@ import (
 	"context"
 )
 
-// ports
+// receiving chapter
 type IChapterInputPort interface {
 	AddChapter(ctx context.Context, chapter models.Chapter) error
 	GetChapter(ctx context.Context, id models.ChapterId) (*models.Chapter, error)

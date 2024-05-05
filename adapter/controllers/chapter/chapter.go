@@ -18,25 +18,28 @@ type IChapterApi interface {
 }
 
 type ChapterController struct {
-	requestMapper controllers.RequestMapper
-	inputPort     ports.IChapterInputPort
+	RequestMapper controllers.RequestMapper
+	StudyAuthPort ports.IStudyAuthPort
+	InputPort     ports.IChapterInputPort
 }
 
 func (it *ChapterController) Get(ctx context.Context) func(c echo.Context) error {
 
 	return func(c echo.Context) error {
-		id := c.Param("chapterId")
-
-		mk, err := it.requestMapper.GetMasterKey(c)
+		sk, err := it.RequestMapper.GetSessionKey(c)
 		if err != nil {
 			return err
 		}
 
-		if config.Server.MasterKey != string(mk) {
-			return c.JSON(http.StatusForbidden, controllers.DefaultResponse)
+		_, err = it.StudyAuthPort.GetAuthorizedUser(ctx, models.SessionKey(sk))
+
+		if err != nil {
+			return controllers.ErrorHandle(c, err)
 		}
 
-		ch, err := it.inputPort.GetChapter(ctx, models.ChapterId(id))
+		id := c.Param("chapterId")
+
+		ch, err := it.InputPort.GetChapter(ctx, models.ChapterId(id))
 
 		if err != nil {
 			return controllers.ErrorHandle(c, err)
@@ -60,7 +63,7 @@ func (it *ChapterController) Get(ctx context.Context) func(c echo.Context) error
 func (it *ChapterController) Post(ctx context.Context) func(c echo.Context) error {
 
 	return func(c echo.Context) error {
-		mk, err := it.requestMapper.GetMasterKey(c)
+		mk, err := it.RequestMapper.GetMasterKey(c)
 		if err != nil {
 			return err
 		}
@@ -71,7 +74,7 @@ func (it *ChapterController) Post(ctx context.Context) func(c echo.Context) erro
 
 		req := new(PostRequest)
 
-		if err := it.requestMapper.Parse(c, req); err != nil {
+		if err := it.RequestMapper.Parse(c, req); err != nil {
 			return err
 		}
 
@@ -85,7 +88,7 @@ func (it *ChapterController) Post(ctx context.Context) func(c echo.Context) erro
 			Exercise:     req.Chapter.Exercise,
 		}
 
-		it.inputPort.AddChapter(ctx, ch)
+		it.InputPort.AddChapter(ctx, ch)
 
 		return c.JSON(http.StatusOK, controllers.DefaultResponse)
 	}
@@ -113,11 +116,13 @@ type (
 )
 
 func NewChapterController(
-	requestMapper controllers.RequestMapper,
-	inputPost ports.IChapterInputPort,
+	RequestMapper controllers.RequestMapper,
+	StudyAuthPort ports.IStudyAuthPort,
+	InputPort ports.IChapterInputPort,
 ) IChapterApi {
 	return &ChapterController{
-		requestMapper: requestMapper,
-		inputPort:     inputPost,
+		RequestMapper: RequestMapper,
+		StudyAuthPort: StudyAuthPort,
+		InputPort:     InputPort,
 	}
 }

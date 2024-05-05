@@ -11,36 +11,17 @@ type UserInteractor struct {
 	Repository ports.IUserRepository
 }
 
-func (it *UserInteractor) AddUser(ctx context.Context, user models.User) error {
-
-	u, err := it.Repository.FetchByUserId(ctx, user.UserId)
-
-	if err != nil {
-		return err
-	}
-
-	if u != nil {
-		return &errors.AlreadyExistsError{Sources: user.UserId}
-	}
-
-	err = it.Repository.AddUser(ctx, user)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (it *UserInteractor) GetUser(ctx context.Context, userId string) (*models.User, error) {
-	u, err := it.Repository.FetchByUserId(ctx, userId)
+func (it *UserInteractor) GetUser(ctx context.Context, userId models.UserId) (*models.User, error) {
+	user, err := it.Repository.FetchByUserId(ctx, userId)
 	if err != nil {
 		return nil, err
 	}
 
-	if u == nil {
+	if user == nil {
 		return nil, &errors.NotFoundError{Sources: string(userId)}
 	}
 
-	return u, nil
+	return user, nil
 }
 
 // di
