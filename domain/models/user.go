@@ -1,7 +1,9 @@
 package models
 
 type User struct {
-	UserId string
+	UserId     UserId
+	SessionKey SessionKey
+	ThemeId    ThemeId
 }
 
 type AdminUser struct {

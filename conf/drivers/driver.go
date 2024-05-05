@@ -1,8 +1,10 @@
 package drivers
 
 import (
+	"chigirh-app-trainning-liuxiu/adapter/controllers/archivement"
 	"chigirh-app-trainning-liuxiu/adapter/controllers/auth"
 	"chigirh-app-trainning-liuxiu/adapter/controllers/chapter"
+	"chigirh-app-trainning-liuxiu/adapter/controllers/theme"
 	"chigirh-app-trainning-liuxiu/adapter/controllers/user"
 	"chigirh-app-trainning-liuxiu/conf/config"
 	"context"
@@ -18,10 +20,12 @@ type Server interface {
 }
 
 type Driver struct {
-	echo       *echo.Echo
-	authApi    auth.IAuthApi
-	userApi    user.IUserApi
-	chapterApi chapter.IChapterApi
+	echo           *echo.Echo
+	authApi        auth.IAuthApi
+	userApi        user.IUserApi
+	chapterApi     chapter.IChapterApi
+	themeApi       theme.IThemeApi
+	archivementApi archivement.IArchivementApi
 }
 
 func NewDriver(
@@ -29,12 +33,16 @@ func NewDriver(
 	authApi auth.IAuthApi,
 	userApi user.IUserApi,
 	chapterApi chapter.IChapterApi,
+	themeApi theme.IThemeApi,
+	archivementApi archivement.IArchivementApi,
 ) Server {
 	return &Driver{
-		echo:       echo,
-		authApi:    authApi,
-		userApi:    userApi,
-		chapterApi: chapterApi,
+		echo:           echo,
+		authApi:        authApi,
+		userApi:        userApi,
+		chapterApi:     chapterApi,
+		themeApi:       themeApi,
+		archivementApi: archivementApi,
 	}
 }
 
@@ -48,11 +56,15 @@ func (driver *Driver) Start(ctx context.Context) {
 	// auth
 	driver.echo.POST("/admin/authentication", driver.authApi.AdminAuth(ctx))
 	// users
-	driver.echo.GET("/users/:userId", driver.userApi.Get(ctx))
-	driver.echo.POST("/users", driver.userApi.Post(ctx))
+	driver.echo.GET("/user/:userId", driver.userApi.Get(ctx))
 	// chapter
 	driver.echo.GET("/chapter/:chapterId", driver.chapterApi.Get(ctx))
 	driver.echo.POST("/chapter", driver.chapterApi.Post(ctx))
+	// theme
+	driver.echo.GET("/theme", driver.themeApi.Get(ctx))
+	// archivement
+	driver.echo.GET("/archivement/:chapterId", driver.archivementApi.Get(ctx))
+	driver.echo.POST("/archivement", driver.archivementApi.Post(ctx))
 
 	driver.echo.Logger.Fatal(driver.echo.Start(fmt.Sprintf(":%d", config.Server.ServerPort)))
 }

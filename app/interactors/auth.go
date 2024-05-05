@@ -7,6 +7,24 @@ import (
 	"context"
 )
 
+type StudyAuthInteractor struct {
+	Repository ports.IUserRepository
+}
+
+func (it *StudyAuthInteractor) GetAuthorizedUser(ctx context.Context, sessionKey models.SessionKey) (*models.User, error) {
+	user, err := it.Repository.FetchBySessionKey(ctx, sessionKey)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if user == nil {
+		return nil, &errors.AuthorizationError{Sources: string(sessionKey)}
+	}
+
+	return user, nil
+}
+
 type AdminAuthInteractor struct {
 	Repository ports.IAdminUserRepository
 }
@@ -27,6 +45,12 @@ func (it *AdminAuthInteractor) AuthAdminUser(ctx context.Context, id models.User
 }
 
 // di
+func NewStudyAuthPort(repository ports.IUserRepository) ports.IStudyAuthPort {
+	return &StudyAuthInteractor{
+		Repository: repository,
+	}
+}
+
 func NewAdminAuthPort(repository ports.IAdminUserRepository) ports.IAdminAuthPort {
 	return &AdminAuthInteractor{
 		Repository: repository,

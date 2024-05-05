@@ -32,6 +32,8 @@ func ErrorHandle(c echo.Context, err error) error {
 		return c.JSON(http.StatusConflict, ErrorResponse{Message: err.Error()})
 	case *errors.AuthenticationError:
 		return c.JSON(http.StatusUnauthorized, ErrorResponse{Message: err.Error()})
+	case *errors.AuthorizationError:
+		return c.JSON(http.StatusForbidden, ErrorResponse{Message: err.Error()})
 	case *errors.SystemError:
 		return c.JSON(http.StatusInternalServerError, ErrorResponse{Message: err.Error()})
 	}
@@ -81,14 +83,14 @@ func (it *RequestMapper) Parse(c echo.Context, i interface{}) error {
 	return nil
 }
 
-func (it *RequestMapper) GetSessionToken(c echo.Context) (models.SessionToken, error) {
-	stkn := c.Request().Header.Get("x-session-token")
+func (it *RequestMapper) GetSessionKey(c echo.Context) (models.SessionKey, error) {
+	sk := c.Request().Header.Get("x-session-key")
 
-	if stkn == "" {
-		return "", echo.NewHTTPError(http.StatusBadRequest, ErrorResponse{Message: "x-session-token is required."})
+	if sk == "" {
+		return "", echo.NewHTTPError(http.StatusBadRequest, ErrorResponse{Message: "x-session-key is required."})
 	}
 
-	return models.SessionToken(stkn), nil
+	return models.SessionKey(sk), nil
 }
 
 func (it *RequestMapper) GetMasterKey(c echo.Context) (models.MasterKey, error) {

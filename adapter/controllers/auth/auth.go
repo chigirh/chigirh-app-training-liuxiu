@@ -17,8 +17,8 @@ type IAuthApi interface {
 }
 
 type AuthController struct {
-	requestMapper controllers.RequestMapper
-	adminAuthPort ports.IAdminAuthPort
+	RequestMapper controllers.RequestMapper
+	AdminAuthPort ports.IAdminAuthPort
 }
 
 func (it *AuthController) AdminAuth(ctx context.Context) func(c echo.Context) error {
@@ -26,11 +26,11 @@ func (it *AuthController) AdminAuth(ctx context.Context) func(c echo.Context) er
 	return func(c echo.Context) error {
 
 		req := new(AdminAuthRequest)
-		if err := it.requestMapper.Parse(c, req); err != nil {
+		if err := it.RequestMapper.Parse(c, req); err != nil {
 			return err
 		}
 
-		isAuthorized, err := it.adminAuthPort.AuthAdminUser(ctx, models.UserId(req.Id), models.Password(req.Password))
+		isAuthorized, err := it.AdminAuthPort.AuthAdminUser(ctx, models.UserId(req.Id), models.Password(req.Password))
 
 		if err != nil {
 			return controllers.ErrorHandle(c, err)
@@ -60,11 +60,11 @@ type (
 )
 
 func NewAuthController(
-	requestMapper controllers.RequestMapper,
-	adminAuthPort ports.IAdminAuthPort,
+	RequestMapper controllers.RequestMapper,
+	AdminAuthPort ports.IAdminAuthPort,
 ) IAuthApi {
 	return &AuthController{
-		requestMapper: requestMapper,
-		adminAuthPort: adminAuthPort,
+		RequestMapper: RequestMapper,
+		AdminAuthPort: AdminAuthPort,
 	}
 }

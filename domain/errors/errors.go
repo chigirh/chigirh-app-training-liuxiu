@@ -28,6 +28,14 @@ func (e *AuthenticationError) Error() string {
 	return fmt.Sprintf("Authentication error:%s", e.Sources)
 }
 
+type AuthorizationError struct {
+	Sources string
+}
+
+func (e *AuthorizationError) Error() string {
+	return fmt.Sprintf("AuthorizationError error:%s", e.Sources)
+}
+
 type SystemError struct {
 	Message string
 }

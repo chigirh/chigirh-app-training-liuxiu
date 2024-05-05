@@ -11,32 +11,40 @@ import (
 type UserGateway struct{}
 
 type User struct {
-	UserId string `json:"user_id"`
+	UserId     string `gorm:"primaryKey;column:user_id"`
+	SessionKey string `gorm:"column:session_key"`
+	ThemeId    string `gorm:"column:theme_id"`
 }
 
-func (it *UserGateway) AddUser(ctx context.Context, user models.User) error {
+func (it *UserGateway) FetchByUserId(ctx context.Context, userId models.UserId) (*models.User, error) {
 
 	db, err := NewDbConnection()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	tx := db.Begin()
-
-	// users
-	if err := tx.Create(&User{
-		UserId: user.UserId,
-	}).Error; err != nil {
-		tx.Rollback()
-		return err
+	ret := []*User{}
+	if err := db.Where("user_id = ?", userId).Find(&ret).Error; err != nil {
+		return nil, err
 	}
 
-	tx.Commit()
+	if len(ret) == 0 {
+		return nil, nil
+	}
+
+	e := ret[0]
+
+	model := models.User{
+		UserId:     models.UserId(e.UserId),
+		SessionKey: models.SessionKey(e.SessionKey),
+		ThemeId:    models.ThemeId(e.ThemeId),
+	}
+
 	db.Close()
-	return nil
+	return &model, nil
 }
 
-func (it *UserGateway) FetchByUserId(ctx context.Context, userId string) (*models.User, error) {
+func (it *UserGateway) FetchBySessionKey(ctx context.Context, sessionKey models.SessionKey) (*models.User, error) {
 	// user
 	db, err := NewDbConnection()
 	if err != nil {
@@ -44,7 +52,7 @@ func (it *UserGateway) FetchByUserId(ctx context.Context, userId string) (*model
 	}
 
 	userResult := []*User{}
-	if err := db.Where("user_id = ?", userId).Find(&userResult).Error; err != nil {
+	if err := db.Where("session_key = ?", sessionKey).Find(&userResult).Error; err != nil {
 		return nil, err
 	}
 
@@ -52,15 +60,16 @@ func (it *UserGateway) FetchByUserId(ctx context.Context, userId string) (*model
 		return nil, nil
 	}
 
-	entity := userResult[0]
+	e := userResult[0]
 
 	model := models.User{
-		UserId: entity.UserId,
+		UserId:     models.UserId(e.UserId),
+		SessionKey: models.SessionKey(e.SessionKey),
+		ThemeId:    models.ThemeId(e.ThemeId),
 	}
 
 	db.Close()
 	return &model, nil
-
 }
 
 // di

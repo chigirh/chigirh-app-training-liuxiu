@@ -13,12 +13,11 @@ import (
 
 type IUserApi interface {
 	Get(ctx context.Context) func(c echo.Context) error
-	Post(ctx context.Context) func(c echo.Context) error
 }
 
 type UserController struct {
-	requestMapper controllers.RequestMapper
-	inputPort     ports.IUserInputPort
+	RequestMapper controllers.RequestMapper
+	InputPort     ports.IUserInputPort
 }
 
 func (it *UserController) Get(ctx context.Context) func(c echo.Context) error {
@@ -26,13 +25,7 @@ func (it *UserController) Get(ctx context.Context) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		userId := c.Param("userId")
 
-		// If session token is set, have admin.
-		// _, err := it.requestMapper.GetSessionToken(c)
-		// if err != nil {
-		// 	return err
-		// }
-
-		u, err := it.inputPort.GetUser(ctx, userId)
+		u, err := it.InputPort.GetUser(ctx, models.UserId(userId))
 
 		if err != nil {
 			return controllers.ErrorHandle(c, err)
@@ -40,31 +33,11 @@ func (it *UserController) Get(ctx context.Context) func(c echo.Context) error {
 
 		res := new(GetResponse)
 		res.User = UserDto{
-			UserId: string(u.UserId),
+			UserId:     string(u.UserId),
+			SessionKey: string(u.SessionKey),
+			ThemeId:    string(u.ThemeId),
 		}
 
-		return c.JSON(http.StatusOK, res)
-	}
-}
-
-func (it *UserController) Post(ctx context.Context) func(c echo.Context) error {
-
-	return func(c echo.Context) error {
-
-		req := new(PostRequest)
-
-		if err := it.requestMapper.Parse(c, req); err != nil {
-			return err
-		}
-
-		user := models.User{
-			UserId: req.User.UserId,
-		}
-		if err := it.inputPort.AddUser(ctx, user); err != nil {
-			return controllers.ErrorHandle(c, err)
-		}
-
-		res := controllers.DefaultResponse
 		return c.JSON(http.StatusOK, res)
 	}
 }
@@ -75,21 +48,19 @@ type (
 		User UserDto `json:"user" validate:"required"`
 	}
 
-	PostRequest struct {
-		User UserDto `json:"user" validate:"required"`
-	}
-
 	UserDto struct {
-		UserId string `json:"user_id" validate:"required,max=64"`
+		UserId     string `json:"user_id" validate:"required,max=64"`
+		SessionKey string `json:"session_key" validate:"required,max=64"`
+		ThemeId    string `json:"theme_id" validate:"required,max=64"`
 	}
 )
 
 func NewUserController(
-	requestMapper controllers.RequestMapper,
-	inputPost ports.IUserInputPort,
+	RequestMapper controllers.RequestMapper,
+	InputPort ports.IUserInputPort,
 ) IUserApi {
 	return &UserController{
-		requestMapper: requestMapper,
-		inputPort:     inputPost,
+		RequestMapper: RequestMapper,
+		InputPort:     InputPort,
 	}
 }
