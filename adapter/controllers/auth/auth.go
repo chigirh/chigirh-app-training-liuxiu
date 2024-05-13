@@ -13,12 +13,20 @@ import (
 )
 
 type IAuthApi interface {
+	Health(ctx context.Context) func(c echo.Context) error
 	AdminAuth(ctx context.Context) func(c echo.Context) error
 }
 
 type AuthController struct {
 	RequestMapper controllers.RequestMapper
 	AdminAuthPort ports.IAdminAuthPort
+}
+
+func (it *AuthController) Health(ctx context.Context) func(c echo.Context) error {
+
+	return func(c echo.Context) error {
+		return c.JSON(http.StatusOK, controllers.DefaultResponse)
+	}
 }
 
 func (it *AuthController) AdminAuth(ctx context.Context) func(c echo.Context) error {

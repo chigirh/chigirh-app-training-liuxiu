@@ -53,6 +53,8 @@ func (driver *Driver) Start(ctx context.Context) {
 	// custom validator
 	// driver.echo.Validator = controllers.NewValidator()
 
+	// health
+	driver.echo.GET("/", driver.authApi.Health(ctx))
 	// auth
 	driver.echo.POST("/admin/authentication", driver.authApi.AdminAuth(ctx))
 	// users
@@ -60,8 +62,13 @@ func (driver *Driver) Start(ctx context.Context) {
 	// chapter
 	driver.echo.GET("/chapter/:chapterId", driver.chapterApi.Get(ctx))
 	driver.echo.POST("/chapter", driver.chapterApi.Post(ctx))
+	driver.echo.GET("/chapter/all", driver.chapterApi.AllGet(ctx))
+	driver.echo.GET("/chapter/list/:themeId", driver.chapterApi.ListGet(ctx))
 	// theme
+	driver.echo.GET("/theme/all", driver.themeApi.AllGet(ctx))
 	driver.echo.GET("/theme", driver.themeApi.Get(ctx))
+	driver.echo.POST("/theme", driver.themeApi.Post(ctx))
+	driver.echo.PUT("/theme/chapter", driver.themeApi.ChapterPut(ctx))
 	// archivement
 	driver.echo.GET("/archivement/:chapterId", driver.archivementApi.Get(ctx))
 	driver.echo.POST("/archivement", driver.archivementApi.Post(ctx))

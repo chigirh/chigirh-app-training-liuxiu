@@ -7,6 +7,11 @@ type Theme struct {
 	Archivements []*Archivement
 }
 
+type ThemeChapters struct {
+	ChapterId ChapterId
+	Order     int
+}
+
 // vo
 type (
 	ThemeId      string

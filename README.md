@@ -18,7 +18,7 @@ curl -X POST -H "Content-Type: application/json" -d '{"user_id":"admin", "passwo
 ###### body
 | column        | type   | validation | note |
 | :------------ | ------ | ---------- | ---- |
-| user          | string | not null   |      |
+| user          | object | not null   |      |
 | - user_id     | string | not null   |      |
 | - session_key | string | not null   |      |
 | - theme_id    | string | not null   |      |
@@ -30,32 +30,25 @@ curl -X GET -H "Content-Type: application/json" http://localhost:9000/user/user
 `
 
 
-#### chapter api
-##### GET
-###### url
+### chapter api
+#### GET
+##### url
 `
 /chapter/${chapterId}
 `
-`
-curl -X GET -H "Content-Type: application/json" -H "x-session-key: xxxxxxxxxx-01" http://localhost:9000/chapter/CHAPTER-AA-01
-`
-
-##### POST
-###### url
-`
-/chapter
-`
+##### request
 ###### header
 
-| key          | type   | validation | note |
-| :----------- | ------ | ---------- | ---- |
-| x-master-key | string | not null   |      |
+| key           | type   | validation | note              |
+| :------------ | ------ | ---------- | ----------------- |
+| x-session-key | string | not null   | get with user api |
 
+##### response
 ###### body
 
 | column               | type   | validation | note |
 | :------------------- | ------ | ---------- | ---- |
-| chapter              | string | not null   |      |
+| chapter              | object | not null   |      |
 | - chapter_id         | string | not null   |      |
 | - main_code          | string | not null   |      |
 | - example_code       | string | not null   |      |
@@ -66,15 +59,110 @@ curl -X GET -H "Content-Type: application/json" -H "x-session-key: xxxxxxxxxx-01
 
 ##### curl
 `
+curl -X GET -H "Content-Type: application/json" -H "x-session-key: xxxxxxxxxx-01" http://localhost:9000/chapter/CHAPTER-AA-01
+`
+
+#### POST
+##### url
+`
+/chapter
+`
+##### request
+###### header
+
+| key          | type   | validation | note |
+| :----------- | ------ | ---------- | ---- |
+| x-master-key | string | not null   |      |
+
+###### body
+
+| column               | type   | validation | note |
+| :------------------- | ------ | ---------- | ---- |
+| chapter              | object | not null   |      |
+| - chapter_id         | string | not null   |      |
+| - main_code          | string | not null   |      |
+| - example_code       | string | not null   |      |
+| - expected           | string | not null   |      |
+| - best_practice_code | string |            |      |
+| - level              | int    | not null   |      |
+| - exercise           | string |            |      |
+
+##### response
+######
+empty
+##### curl
+`
 curl -X POST -H "Content-Type: application/json" -H "x-master-key: 5d71bca7-17f6-4646-82df-7dc9397e9422" -d '{"chapter":{"chapter_id":"CHAPTER0001", "main_code":"sample01", "example_code":"sample02", "expected":"sample03", "best_practice_code":"sample04", "level":1, "exercise":"sample05"}}' http://localhost:9000/chapter
+`
+
+#### ALL GET
+##### url
+`
+/chapter/all
+`
+##### request
+###### header
+
+| key          | type   | validation | note |
+| :----------- | ------ | ---------- | ---- |
+| x-master-key | string | not null   |      |
+
+##### response
+###### body
+
+| column               | type   | validation | note |
+| :------------------- | ------ | ---------- | ---- |
+| chapters             | array  | not null   |      |
+| - chapter_id         | string | not null   |      |
+| - main_code          | string | not null   |      |
+| - example_code       | string | not null   |      |
+| - expected           | string | not null   |      |
+| - best_practice_code | string |            |      |
+| - level              | int    | not null   |      |
+| - exercise           | string |            |      |
+
+##### curl
+`
+curl -X GET -H "Content-Type: application/json" -H "x-master-key: 5d71bca7-17f6-4646-82df-7dc9397e9422" http://localhost:9000/chapter/all
+`
+
+#### List GET(theme id)
+##### url
+`
+/chapter/list/${themeId}
+`
+##### request
+###### header
+
+| key          | type   | validation | note |
+| :----------- | ------ | ---------- | ---- |
+| x-master-key | string | not null   |      |
+
+##### response
+###### body
+
+| column               | type   | validation | note |
+| :------------------- | ------ | ---------- | ---- |
+| chapters             | array  | not null   |      |
+| - chapter_id         | string | not null   |      |
+| - main_code          | string | not null   |      |
+| - example_code       | string | not null   |      |
+| - expected           | string | not null   |      |
+| - best_practice_code | string |            |      |
+| - level              | int    | not null   |      |
+| - exercise           | string |            |      |
+
+##### curl
+`
+curl -X GET -H "Content-Type: application/json" -H "x-master-key: 5d71bca7-17f6-4646-82df-7dc9397e9422" http://localhost:9000/chapter/list/THEME-01
 `
 
 
 ### theme api
-#### GET
+#### ALL GET
 ##### url
 `
-/theme
+/theme/all
 `
 
 ##### request
@@ -87,22 +175,110 @@ curl -X POST -H "Content-Type: application/json" -H "x-master-key: 5d71bca7-17f6
 ##### response
 ###### body
 
-| column             | type    | validation | note                              |
-| :----------------- | ------- | ---------- | --------------------------------- |
-| theme              | string  | not null   |                                   |
-| - theme_id         | string  | not null   |                                   |
-| - theme            | string  | not null   |                                   |
-| - description      | string  | not null   |                                   |
-| - archivements     | arrays  | not null   |                                   |
-| - - archivement_id | string  | not null   |                                   |
-| - - chapter_id     | int     | not null   |                                   |
-| - - order          | integer | not null   | display order                     |
-| - - status         | string  | not null   | 0:not start,1:pending,2,completed |
+| column           | type    | validation | note                              |
+| :--------------- | ------- | ---------- | --------------------------------- |
+| theme            | string  | not null   |                                   |
+| - theme_id       | string  | not null   |                                   |
+| - theme          | string  | not null   |                                   |
+| - description    | string  | not null   |                                   |
+| archivements     | arrays  | not null   |                                   |
+| - archivement_id | string  | not null   |                                   |
+| - chapter_id     | int     | not null   |                                   |
+| - order          | integer | not null   | display order                     |
+| - status         | string  | not null   | 0:not start,1:pending,2,completed |
 
 ##### curl
 `
 curl -X GET -H "Content-Type: application/json" -H "x-session-key: xxxxxxxxxx-01" "http://localhost:9000/theme"
 `
+
+
+#### GET
+##### url
+`
+/theme
+`
+
+##### request
+###### header
+
+| key          | type   | validation | note |
+| :----------- | ------ | ---------- | ---- |
+| x-master-key | string | not null   |      |
+
+##### response
+###### body
+
+| column        | type   | validation | note |
+| :------------ | ------ | ---------- | ---- |
+| themes        | array  | not null   |      |
+| - theme_id    | string | not null   |      |
+| - theme       | string | not null   |      |
+| - description | string | not null   |      |
+
+##### curl
+`
+curl -X GET -H "Content-Type: application/json" -H "x-master-key: 5d71bca7-17f6-4646-82df-7dc9397e9422" "http://localhost:9000/theme/all"
+`
+
+#### POST
+##### url
+`
+/theme
+`
+##### request
+###### header
+
+| key          | type   | validation | note |
+| :----------- | ------ | ---------- | ---- |
+| x-master-key | string | not null   |      |
+
+###### body
+
+| column        | type   | validation | note |
+| :------------ | ------ | ---------- | ---- |
+| theme         | object | not null   |      |
+| - theme_id    | string | not null   |      |
+| - theme       | string | not null   |      |
+| - description | string | not null   |
+
+##### response
+######
+empty
+##### curl
+`
+curl -X POST -H "Content-Type: application/json" -H "x-master-key: 5d71bca7-17f6-4646-82df-7dc9397e9422" -d '{"theme":{"theme_id":"THEME-XX", "theme":"sample1", "description":"sample2"}}' http://localhost:9000/theme
+`
+
+#### CHAPTER PUT
+##### url
+`
+/theme/chapter
+`
+##### request
+###### header
+
+| key          | type   | validation | note |
+| :----------- | ------ | ---------- | ---- |
+| x-master-key | string | not null   |      |
+
+###### body
+
+| column       | type   | validation | note |
+| :----------- | ------ | ---------- | ---- |
+| theme_id     | string | not null   |      |
+| chapters     | array  | not null   |      |
+| - chapter_id | string | not null   |      |
+| - order      | int    | not null   |      |
+
+##### response
+######
+empty
+##### curl
+`
+curl -X PUT -H "Content-Type: application/json" -H "x-master-key: 5d71bca7-17f6-4646-82df-7dc9397e9422" -d '{"theme_id":"THEME-XX", "chapters":[{"chapter_id":"CHAPTER-AA-03", "order":1}, {"chapter_id":"CHAPTER-AA-04", "order":2}]}' http://localhost:9000/theme/chapter
+`
+
 
 ### archivement api
 #### GET

@@ -78,6 +78,82 @@ func (it *ChapterGateway) FetchBy(ctx context.Context, id models.ChapterId) (*mo
 	return &model, nil
 }
 
+func (it *ChapterGateway) FetchAll(ctx context.Context) ([]*models.Chapter, error) {
+	db, err := NewDbConnection()
+	if err != nil {
+		return nil, err
+	}
+
+	ret := []*Chapter{}
+	if err := db.Find(&ret).Error; err != nil {
+		return nil, err
+	}
+
+	if len(ret) == 0 {
+		return []*models.Chapter{}, nil
+	}
+
+	model := []*models.Chapter{}
+
+	for _, e := range ret {
+		m := models.Chapter{
+			Id:           models.ChapterId(e.ChapterId),
+			Main:         models.Code(e.MainCode),
+			Example:      models.Code(e.ExampleCode),
+			Expected:     e.Expected,
+			BestPractice: models.Code(e.BestPracticeCode),
+			Level:        models.Level(e.Level),
+			Exercise:     e.Exercise,
+		}
+
+		model = append(model, &m)
+	}
+
+	db.Close()
+	return model, nil
+}
+
+func (it *ChapterGateway) FetchByThemeId(ctx context.Context, id models.ThemeId) ([]*models.Chapter, error) {
+	db, err := NewDbConnection()
+	if err != nil {
+		return nil, err
+	}
+
+	ret := []*Chapter{}
+	err = db.Table("themes_chapter_intersections tci").
+		Select("c.*").
+		Joins("inner join chapters c ON c.chapter_id =  tci.chapter_id").
+		Where("tci.theme_id = ?", id).
+		Scan(&ret).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	if len(ret) == 0 {
+		return []*models.Chapter{}, nil
+	}
+
+	model := []*models.Chapter{}
+
+	for _, e := range ret {
+		m := models.Chapter{
+			Id:           models.ChapterId(e.ChapterId),
+			Main:         models.Code(e.MainCode),
+			Example:      models.Code(e.ExampleCode),
+			Expected:     e.Expected,
+			BestPractice: models.Code(e.BestPracticeCode),
+			Level:        models.Level(e.Level),
+			Exercise:     e.Exercise,
+		}
+
+		model = append(model, &m)
+	}
+
+	db.Close()
+	return model, nil
+}
+
 // di
 func NewChapterRepository() ports.IChapterRepository {
 	return &ChapterGateway{}

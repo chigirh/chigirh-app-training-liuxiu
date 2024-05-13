@@ -1,3 +1,5 @@
 .vscode
 
 docker/mysql/data
+
+aws_config.ini
