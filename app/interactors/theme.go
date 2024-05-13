@@ -12,6 +12,17 @@ type ThemeInteractor struct {
 	ArchiveRepository ports.IArchivementRepository
 }
 
+func (it *ThemeInteractor) GetAll(ctx context.Context) ([]*models.Theme, error) {
+
+	themes, err := it.ThemeRepository.FetchAll(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return themes, nil
+}
+
 func (it *ThemeInteractor) GetTheme(ctx context.Context, userId models.UserId, themeId models.ThemeId) (*models.Theme, error) {
 
 	theme, err := it.ThemeRepository.FetchByThemeId(ctx, themeId)
@@ -33,6 +44,47 @@ func (it *ThemeInteractor) GetTheme(ctx context.Context, userId models.UserId, t
 	theme.Archivements = models.Archivements(archivements)
 
 	return theme, nil
+}
+
+func (it *ThemeInteractor) AddTheme(ctx context.Context, theme models.Theme) error {
+
+	t, err := it.ThemeRepository.FetchByThemeId(ctx, theme.ThemeId)
+
+	if err != nil {
+		return err
+	}
+
+	if t != nil {
+		return &errors.AlreadyExistsError{Sources: string(theme.ThemeId)}
+	}
+
+	err = it.ThemeRepository.Create(ctx, theme)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (it *ThemeInteractor) UpdateChapter(ctx context.Context, theme models.Theme, chapters []models.ThemeChapters) error {
+
+	t, err := it.ThemeRepository.FetchByThemeId(ctx, theme.ThemeId)
+
+	if err != nil {
+		return err
+	}
+
+	if t == nil {
+		return &errors.NotFoundError{Sources: string(theme.ThemeId)}
+	}
+	err = it.ThemeRepository.UpdateChapter(ctx, theme, chapters)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // di

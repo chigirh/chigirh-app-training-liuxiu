@@ -15,6 +15,8 @@ import (
 type IChapterApi interface {
 	Get(ctx context.Context) func(c echo.Context) error
 	Post(ctx context.Context) func(c echo.Context) error
+	AllGet(ctx context.Context) func(c echo.Context) error
+	ListGet(ctx context.Context) func(c echo.Context) error
 }
 
 type ChapterController struct {
@@ -94,6 +96,83 @@ func (it *ChapterController) Post(ctx context.Context) func(c echo.Context) erro
 	}
 }
 
+func (it *ChapterController) AllGet(ctx context.Context) func(c echo.Context) error {
+
+	return func(c echo.Context) error {
+		mk, err := it.RequestMapper.GetMasterKey(c)
+		if err != nil {
+			return err
+		}
+
+		if config.Server.MasterKey != string(mk) {
+			return c.JSON(http.StatusForbidden, controllers.DefaultResponse)
+		}
+
+		chapters, err := it.InputPort.GetAll(ctx)
+
+		if err != nil {
+			return controllers.ErrorHandle(c, err)
+		}
+
+		dtos := []ChapterData{}
+		for _, chapter := range chapters {
+			dto := ChapterData{
+				ChapterId:        string(chapter.Id),
+				MainCode:         string(chapter.Main),
+				ExampleCode:      string(chapter.Example),
+				Expected:         chapter.Expected,
+				BestPracticeCode: string(chapter.BestPractice),
+				Level:            int(chapter.Level),
+				Exercise:         chapter.Exercise,
+			}
+			dtos = append(dtos, dto)
+		}
+		res := new(AllGetResponse)
+		res.Chapters = dtos
+
+		return c.JSON(http.StatusOK, res)
+	}
+}
+
+func (it *ChapterController) ListGet(ctx context.Context) func(c echo.Context) error {
+
+	return func(c echo.Context) error {
+		mk, err := it.RequestMapper.GetMasterKey(c)
+		if err != nil {
+			return err
+		}
+
+		if config.Server.MasterKey != string(mk) {
+			return c.JSON(http.StatusForbidden, controllers.DefaultResponse)
+		}
+
+		id := c.Param("themeId")
+		chapters, err := it.InputPort.GetChapterByThemeId(ctx, models.ThemeId(id))
+
+		if err != nil {
+			return controllers.ErrorHandle(c, err)
+		}
+
+		dtos := []ChapterData{}
+		for _, chapter := range chapters {
+			dto := ChapterData{
+				ChapterId:        string(chapter.Id),
+				MainCode:         string(chapter.Main),
+				ExampleCode:      string(chapter.Example),
+				Expected:         chapter.Expected,
+				BestPracticeCode: string(chapter.BestPractice),
+				Level:            int(chapter.Level),
+				Exercise:         chapter.Exercise,
+			}
+			dtos = append(dtos, dto)
+		}
+		res := new(AllGetResponse)
+		res.Chapters = dtos
+
+		return c.JSON(http.StatusOK, res)
+	}
+}
+
 // dto -->
 type (
 	GetResponse struct {
@@ -102,6 +181,14 @@ type (
 
 	PostRequest struct {
 		Chapter ChapterData `json:"chapter" validate:"required"`
+	}
+
+	AllGetResponse struct {
+		Chapters []ChapterData `json:"chapters" validate:"required"`
+	}
+
+	ListGetResponse struct {
+		Chapters []ChapterData `json:"chapters" validate:"required"`
 	}
 
 	ChapterData struct {
